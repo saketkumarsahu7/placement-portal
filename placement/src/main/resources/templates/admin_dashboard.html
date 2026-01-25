@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark">
+
+<nav class="navbar navbar-dark bg-secondary mb-4">
+  <div class="container-fluid px-5">
+    <span class="navbar-brand">🛡️ Admin Control Panel</span>
+    <div class="d-flex align-items-center">
+      <span class="text-white me-3">Hello, <span th:text="${adminName}">Admin</span></span>
+      <a href="/login" class="btn btn-danger btn-sm">Logout</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid px-4 mb-5">
+
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card shadow border-0">
+        <div class="card-header bg-white fw-bold text-center">Placement Pipeline Status</div>
+        <div class="card-body">
+          <canvas id="statusChart" style="max-height: 250px;"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card shadow border-0">
+        <div class="card-header bg-white fw-bold text-center">Applications by Branch</div>
+        <div class="card-body">
+          <canvas id="branchChart" style="max-height: 250px;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card shadow-lg border-0">
+    <div class="card-header bg-white py-3">
+      <h5 class="text-danger fw-bold mb-0">Master Application Database</h5>
+    </div>
+    <div class="card-body">
+
+      <table id="adminTable" class="table table-striped table-hover align-middle" style="width:100%">
+        <thead class="table-dark">
+        <tr>
+          <th>Student</th>
+          <th>Applied To</th>
+          <th>CGPA</th>
+          <th>Branch</th>
+          <th>Resume</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="app : ${applications}">
+          <td>
+            <div class="fw-bold" th:text="${app.fullName}">Name</div>
+            <div class="small text-muted" th:text="${app.email}">Email</div>
+          </td>
+          <td>
+            <span th:text="${app.job.jobTitle}">Role</span>
+            <span class="badge bg-light text-dark" th:text="${app.job.company.fullName}">Co</span>
+          </td>
+          <td class="fw-bold text-danger" th:text="${app.cgpa}">8.5</td>
+          <td th:text="${app.branch}">CSE</td>
+          <td>
+            <a th:href="${app.resumeLink}" target="_blank" class="btn btn-sm btn-outline-dark">Link</a>
+          </td>
+          <td>
+                                <span th:class="${'badge ' +
+                                      (app.status == 'Hired' ? 'bg-success' :
+                                      (app.status == 'Rejected' ? 'bg-danger' : 'bg-warning text-dark'))}"
+                                      th:text="${app.status}">Status</span>
+          </td>
+          <td>
+            <a th:href="@{'/admin/application/delete/' + ${app.id}}"
+               class="btn btn-sm btn-danger fw-bold"
+               onclick="return confirm('ADMIN WARNING: Delete this record?');">
+              X
+            </a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
+
+<script th:inline="javascript">
+  // 1. Initialize Table
+  $(document).ready(function() {
+      $('#adminTable').DataTable({
+          dom: 'Bfrtip',
+          buttons: [ 'excel', 'print' ]
+      });
+  });
+
+  // 2. Render Charts with Data from Java
+  const hired = [[${statHired}]];
+  const short = [[${statShort}]];
+  const reject = [[${statReject}]];
+  const applied = [[${statApplied}]];
+
+  const cse = [[${cseCount}]];
+  const ece = [[${eceCount}]];
+  const mech = [[${mechCount}]];
+  const civil = [[${civilCount}]];
+
+  // Chart 1: Status Pie Chart
+  new Chart(document.getElementById('statusChart'), {
+      type: 'doughnut',
+      data: {
+          labels: ['Hired', 'Shortlisted', 'Rejected', 'Applied'],
+          datasets: [{
+              data: [hired, short, reject, applied],
+              backgroundColor: ['#198754', '#ffc107', '#dc3545', '#6c757d']
+          }]
+      }
+  });
+
+  // Chart 2: Branch Bar Chart
+  new Chart(document.getElementById('branchChart'), {
+      type: 'bar',
+      data: {
+          labels: ['CSE', 'ECE', 'MECH', 'CIVIL'],
+          datasets: [{
+              label: 'Applicants',
+              data: [cse, ece, mech, civil],
+              backgroundColor: '#0d6efd'
+          }]
+      },
+      options: { scales: { y: { beginAtZero: true } } }
+  });
+</script>
+</body>
+</html>

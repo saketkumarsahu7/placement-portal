@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Company Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
+<div class="card shadow p-4" style="width: 400px; border-top: 5px solid #198754;">
+  <div class="text-center mb-4">
+    <div style="font-size: 3rem;">🏢</div>
+    <h3 class="text-success">Company Portal</h3>
+  </div>
+
+  <div th:if="${param.success}" class="alert alert-success">Registration successful!</div>
+  <div th:if="${param.error}" class="alert alert-danger">Invalid credentials.</div>
+
+  <form action="/company/login-process" method="post">
+    <div class="mb-3">
+      <input type="email" name="email" class="form-control" placeholder="Company Email" required>
+    </div>
+    <div class="mb-3">
+      <input type="password" name="password" class="form-control" placeholder="Password" required>
+    </div>
+    <button type="submit" class="btn btn-success w-100">Login</button>
+  </form>
+  <div class="text-center mt-3">
+    <a href="/company/register" class="text-success">Register Company</a> | <a href="/">Back Home</a>
+  </div>
+</div>
+</body>
+</html>
