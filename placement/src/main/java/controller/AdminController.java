@@ -101,4 +101,15 @@ public class AdminController {
         }
         return "User not found! Did you register first?";
     }
+    @GetMapping("/create-admin")
+    @ResponseBody
+    public String createAdmin() {
+        User admin = new User();
+        admin.setFullName("Super Admin");
+        admin.setEmail("admin@test.com");
+        admin.setPassword("123456"); // <--- This will be your new password
+        admin.setRole("ADMIN");
+        userRepository.save(admin);
+        return "Admin Created! Login with admin@test.com / 123456";
+    }
 }
