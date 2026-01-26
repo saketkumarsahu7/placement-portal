@@ -1,5 +1,6 @@
 package com.campus.placement.controller;
 
+import org.springframework.web.bind.annotation.ResponseBody;
 import com.campus.placement.entity.Application;
 import com.campus.placement.entity.User;
 import com.campus.placement.repository.ApplicationRepository;
@@ -82,5 +83,22 @@ public class AdminController {
 
         applicationRepository.deleteById(appId);
         return "redirect:/admin?success=AppRemoved";
+    }
+    // --- TEMPORARY SECRET LINK TO MAKE ADMIN ---
+    @GetMapping("/make-me-admin")
+    @ResponseBody
+    public String makeMeAdmin() {
+        // 1. Get all users
+        List<User> users = userRepository.findAll();
+
+        // 2. Find your email and upgrade it
+        for (User u : users) {
+            if (u.getEmail().equals("saketkumarsahu000@gmail.com")) { // <--- CHANGE THIS TO YOUR EMAIL
+                u.setRole("ADMIN");
+                userRepository.save(u);
+                return "SUCCESS! " + u.getFullName() + " is now an ADMIN. Go to /admin/login";
+            }
+        }
+        return "User not found! Did you register first?";
     }
 }
