@@ -61,7 +61,6 @@ public class StudentController {
         User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/student/login";
 
-        // Check if already applied
         if (applicationRepository.existsByStudentIdAndJobId(user.getId(), jobId)) {
             return "redirect:/student/dashboard?error=already_applied";
         }
@@ -74,22 +73,21 @@ public class StudentController {
         return "application_form";
     }
 
-    // 3. SUBMIT FORM (Corrected: No File Upload, Uses ResumeLink & CGPA)
+    // 3. SUBMIT FORM
     @PostMapping("/student/apply-submit")
     public String submitApplication(@RequestParam Long jobId,
                                     @RequestParam String contactNumber,
                                     @RequestParam String gender,
                                     @RequestParam String branch,
-                                    @RequestParam String cgpa, // Matches Entity
+                                    @RequestParam String cgpa,
                                     @RequestParam String yearOfPassing,
                                     @RequestParam String collegeName,
-                                    @RequestParam String resumeLink, // Matches Entity
+                                    @RequestParam String resumeLink,
                                     HttpSession session) {
 
         User user = (User) session.getAttribute("user");
         if (user == null) return "redirect:/student/login";
 
-        // Double check duplicate
         if (applicationRepository.existsByStudentIdAndJobId(user.getId(), jobId)) {
             return "redirect:/student/dashboard?error=already_applied";
         }
@@ -102,7 +100,6 @@ public class StudentController {
         app.setApplicationDate(LocalDate.now());
         app.setStatus("Applied");
 
-        // --- Save the fields that actually exist in Application.java ---
         app.setFullName(user.getFullName());
         app.setEmail(user.getEmail());
         app.setPositionApplied(job.getJobTitle());
@@ -110,17 +107,17 @@ public class StudentController {
         app.setContactNumber(contactNumber);
         app.setGender(gender);
         app.setBranch(branch);
-        app.setCgpa(cgpa);                // <--- Correctly saves CGPA
+        app.setCgpa(cgpa);
         app.setYearOfPassing(yearOfPassing);
         app.setCollegeName(collegeName);
-        app.setResumeLink(resumeLink);    // <--- Correctly saves Link (Not File)
+        app.setResumeLink(resumeLink);
 
         applicationRepository.save(app);
 
         return "redirect:/student/dashboard?applied=true";
     }
 
-    // 4. Update Profile (For Dashboard Sidebar)
+    // 4. Update Profile
     @PostMapping("/student/update")
     public String updateProfile(@RequestParam String department, @RequestParam String cgpa, HttpSession session) {
         User user = (User) session.getAttribute("user");

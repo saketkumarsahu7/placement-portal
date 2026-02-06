@@ -18,12 +18,12 @@ public class Application {
     private String fullName;
     private String email;
     private String contactNumber;
-    private String gender;           // Ensure this exists
-    private String cgpa;             // Ensure this exists
-    private String branch;           // Ensure this exists
-    private String yearOfPassing;    // Ensure this exists
-    private String collegeName;      // Ensure this exists
-    private String resumeLink;       // Ensure this exists
+    private String gender;
+    private String cgpa;
+    private String branch;
+    private String yearOfPassing;
+    private String collegeName;
+    private String resumeLink;
 
     private String positionApplied;
 
@@ -36,7 +36,7 @@ public class Application {
     @JoinColumn(name = "job_id")
     private Job job;
 
-    // --- GETTERS (CRITICAL FOR HTML TO WORK) ---
+    // --- GETTERS AND SETTERS ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
