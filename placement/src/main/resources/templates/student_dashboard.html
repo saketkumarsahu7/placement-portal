@@ -3,15 +3,39 @@
 <head>
     <title>Student Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body { background-color: #f8f9fa; }
+
+        /* Search Bar Styling */
+        .search-box {
+            position: relative;
+            max-width: 300px;
+        }
+        .search-box input {
+            padding-left: 35px; /* Space for the icon */
+            border-radius: 20px;
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+        }
+    </style>
 </head>
 <body class="bg-light">
 
-<nav class="navbar navbar-dark bg-primary mb-5">
+<nav class="navbar navbar-dark bg-primary mb-5 shadow-sm">
     <div class="container">
-        <span class="navbar-brand mb-0 h1">Student Portal</span>
+        <span class="navbar-brand mb-0 h1"><i class="fas fa-graduation-cap me-2"></i>Student Portal</span>
         <div class="d-flex align-items-center">
-            <span class="text-white me-3">Welcome, <span th:text="${user.fullName}">Student</span></span>
-            <a href="/login" class="btn btn-outline-light btn-sm">Logout</a>
+            <span class="text-white me-3 d-none d-md-block">
+                Welcome, <span th:text="${user?.fullName}">Student</span>
+            </span>
+            <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
         </div>
     </div>
 </nav>
@@ -19,50 +43,45 @@
 <div class="container">
 
     <div th:if="${param.success}" class="alert alert-success alert-dismissible fade show">
-        <strong>Success!</strong> Profile updated.
+        <strong>Success!</strong> Action completed successfully.
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     <div th:if="${param.applied}" class="alert alert-success alert-dismissible fade show">
         <strong>Great Job!</strong> Application submitted successfully.
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-    <div th:if="${param.error == 'already_applied'}" class="alert alert-warning alert-dismissible fade show">
-        <strong>Warning:</strong> You have already applied for this position.
+    <div th:if="${param.error}" class="alert alert-warning alert-dismissible fade show">
+        <strong>Error:</strong> Something went wrong.
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
     <div class="row">
 
-        <div class="col-md-4">
-            <div class="card shadow mb-4">
-                <div class="card-header bg-white text-center">
+        <div class="col-md-4 mb-4">
+            <div class="card shadow border-0">
+                <div class="card-header bg-white text-center pt-4">
+                    <i class="fas fa-user-circle text-primary" style="font-size: 4rem;"></i>
                     <h5 class="text-primary mt-2">My Profile</h5>
                 </div>
                 <div class="card-body">
                     <form action="/student/update" method="post">
                         <div class="mb-3">
                             <label class="text-muted small">Full Name</label>
-                            <input type="text" class="form-control" th:value="${user.fullName}" disabled>
+                            <input type="text" class="form-control" th:value="${user?.fullName}" disabled>
                         </div>
-                        <div class="mb-3">
-                            <label class="text-muted small">Email</label>
-                            <input type="text" class="form-control" th:value="${user.email}" disabled>
-                        </div>
-                        <hr>
                         <div class="mb-3">
                             <label class="form-label fw-bold">Department</label>
                             <select name="department" class="form-select">
-                                <option th:text="${user.department} ?: 'Select Department'"
-                                        th:value="${user.department}"></option>
-                                <option value="CSE">Computer Science (CSE)</option>
-                                <option value="ECE">Electronics (ECE)</option>
-                                <option value="MECH">Mechanical</option>
-                                <option value="CIVIL">Civil</option>
+                                <option th:text="${user?.department} ?: 'Select'" th:value="${user?.department}"></option>
+                                <option value="CSE">CSE</option>
+                                <option value="ECE">ECE</option>
+                                <option value="MECH">MECH</option>
+                                <option value="CIVIL">CIVIL</option>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label fw-bold">Current CGPA</label>
-                            <input type="text" name="cgpa" class="form-control" th:value="${user.cgpa}" placeholder="e.g. 8.5">
+                            <label class="form-label fw-bold">CGPA</label>
+                            <input type="text" name="cgpa" class="form-control" th:value="${user?.cgpa}" placeholder="e.g. 8.5">
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Save Profile</button>
                     </form>
@@ -71,89 +90,89 @@
         </div>
 
         <div class="col-md-8">
-            <h3 class="text-primary mb-3">Active Job Openings</h3>
-            <div class="card shadow">
-                <div class="card-body">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-dark">
-                        <tr>
-                            <th>Role & Company</th>
-                            <th>Package</th>
-                            <th>Location</th>
-                            <th>Status</th> <th>Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="job : ${jobs}">
-                            <td>
-                                <div class="fw-bold text-primary" th:text="${job.jobTitle}">Role</div>
-                                <div class="small text-muted" th:text="${job.company.fullName}">Company</div>
-                            </td>
-                            <td><span class="badge bg-success" th:text="${job.packageLPA}">12 LPA</span></td>
-                            <td th:text="${job.location}">Bangalore</td>
 
-                            <td>
-                                <a href="#history-section" th:if="${appliedJobIds.contains(job.id)}" class="badge bg-secondary text-decoration-none">
-                                    Check Below ↓
-                                </a>
-                                <span th:if="${!appliedJobIds.contains(job.id)}" class="text-muted small">-</span>
-                            </td>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="text-primary mb-0"><i class="fas fa-briefcase me-2"></i>Active Jobs</h3>
 
-                            <td>
-                                <a th:if="${!appliedJobIds.contains(job.id)}"
-                                   th:href="@{'/student/apply/' + ${job.id}}"
-                                   class="btn btn-sm btn-outline-primary fw-bold">Apply Now</a>
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="jobSearchInput" class="form-control" placeholder="Search companies...">
+                </div>
+            </div>
 
-                                <button th:if="${appliedJobIds.contains(job.id)}"
-                                        class="btn btn-sm btn-success disabled" style="opacity: 0.7;">✓ Applied</button>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(jobs)}">
-                            <td colspan="5" class="text-center text-muted py-4">No active job openings found.</td>
-                        </tr>
-                        </tbody>
-                    </table>
+            <div class="card shadow border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>Role & Company</th>
+                                <th>Package</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody id="jobTableBody">
+                            <tr th:each="job : ${jobs}">
+                                <td>
+                                    <div class="fw-bold text-primary" th:text="${job.jobTitle}">Role</div>
+                                    <div class="small text-muted" th:text="${job.company?.fullName}">Company</div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-success" th:text="${job.packageLPA} + ' LPA'">12 LPA</span>
+                                </td>
+
+                                <td>
+                                    <div th:if="${appliedJobIds.contains(job.id)}">
+                                        <button class="btn btn-sm btn-secondary disabled">Applied</button>
+                                    </div>
+                                    <div th:unless="${appliedJobIds.contains(job.id)}">
+                                        <a th:href="@{'/student/apply/' + ${job.id}}" class="btn btn-sm btn-outline-primary fw-bold">
+                                            Apply Now
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(jobs)}">
+                                <td colspan="3" class="text-center text-muted py-4">No active job openings found.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="history-section" class="row mt-5 mb-5">
+    <div class="row mt-5 mb-5">
         <div class="col-12">
-            <h3 class="text-success border-bottom pb-2">My Application Status</h3>
-            <div class="card shadow">
+            <h3 class="text-success border-bottom pb-2"><i class="fas fa-tasks me-2"></i>My Applications</h3>
+            <div class="card shadow border-0">
                 <div class="card-body p-0">
-                    <table class="table table-striped mb-0">
-                        <thead class="bg-success text-white">
-                        <tr>
-                            <th>Company</th>
-                            <th>Role</th>
-                            <th>Date Applied</th>
-                            <th>Current Status</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="app : ${myApplications}">
-                            <td class="fw-bold" th:text="${app.job.company.fullName}">Google</td>
-                            <td th:text="${app.job.jobTitle}">SDE</td>
-                            <td th:text="${app.applicationDate}">2026-05-20</td>
-                            <td>
-                                <span th:if="${app.status == 'Applied'}" class="badge bg-secondary">Submitted</span>
-
-                                <span th:if="${app.status == 'Shortlisted'}" class="badge bg-warning text-dark">Shortlisted</span>
-
-                                <span th:if="${app.status == 'Interview'}" class="badge bg-info text-dark">Interview Scheduled</span>
-
-                                <span th:if="${app.status == 'Hired'}" class="badge bg-success px-3 py-2">✅ OFFER RECEIVED</span>
-
-                                <span th:if="${app.status == 'Rejected'}" class="badge bg-danger">Not Selected</span>
-                            </td>
-                        </tr>
-                        <tr th:if="${#lists.isEmpty(myApplications)}">
-                            <td colspan="4" class="text-center text-muted py-4">You haven't applied to any jobs yet.</td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0 align-middle">
+                            <thead class="bg-success text-white">
+                            <tr>
+                                <th>Company</th>
+                                <th>Role</th>
+                                <th>Date Applied</th>
+                                <th>Current Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="app : ${myApplications}">
+                                <td class="fw-bold" th:text="${app.job?.company?.fullName}">Google</td>
+                                <td th:text="${app.job?.jobTitle}">SDE</td>
+                                <td th:text="${app.applicationDate}">2026-05-20</td>
+                                <td>
+                                    <span th:if="${app.status == 'Applied'}" class="badge bg-secondary">Submitted</span>
+                                    <span th:if="${app.status == 'Shortlisted'}" class="badge bg-warning text-dark">Shortlisted</span>
+                                    <span th:if="${app.status == 'Hired'}" class="badge bg-success">✅ OFFER</span>
+                                    <span th:if="${app.status == 'Rejected'}" class="badge bg-danger">Rejected</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -162,5 +181,22 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.getElementById('jobSearchInput').addEventListener('keyup', function() {
+        let searchValue = this.value.toLowerCase();
+        let tableRows = document.querySelectorAll('#jobTableBody tr');
+
+        tableRows.forEach(row => {
+            let rowText = row.innerText.toLowerCase();
+            if (rowText.includes(searchValue)) {
+                row.style.display = ''; // Show row
+            } else {
+                row.style.display = 'none'; // Hide row
+            }
+        });
+    });
+</script>
+
 </body>
 </html>
